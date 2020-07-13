@@ -652,6 +652,22 @@ class Cache(base.Layer):
     """Returns the unique sublayer managed by this layer."""
     return self._sublayers[0]
 
+  @base.Layer.weights.setter
+  def weights(self, weights):
+    """Recursively sets weights on this layer and all sublayers."""
+    if isinstance(weights, dict) and weights == base.GET_WEIGHTS_FROM_CACHE:
+      return
+    self._weights = weights
+    self.sublayer.weights = weights
+
+  @base.Layer.state.setter
+  def state(self, state):
+    """Recursively sets non-param state on this layer and all sublayers."""
+    if isinstance(state, dict) and state == base.GET_STATE_FROM_CACHE:
+      return
+    self._state = state
+    self.sublayer.state = state[1]
+
   def forward(self, inputs):
     state, weights = self.state, self.weights
     if state[0] is ():  # pylint: disable=literal-comparison
